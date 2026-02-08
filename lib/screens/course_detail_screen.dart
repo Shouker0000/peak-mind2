@@ -24,7 +24,6 @@ class CourseDetailScreen extends StatefulWidget {
 
 class _CourseDetailScreenState extends State<CourseDetailScreen> {
   final FirebaseAuthService _authService = FirebaseAuthService();
-  bool _isEnrolled = false;
 
   @override
   Widget build(BuildContext context) {
