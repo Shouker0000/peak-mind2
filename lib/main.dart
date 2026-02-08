@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:peak_mind/screens/add_edit_course_screen.dart';
 import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
 import 'screens/onboarding_screen.dart';
+import 'screens/signup_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/role_selection_screen.dart';
 import 'screens/courses_screen.dart';
 
 void main() async {
@@ -27,10 +28,13 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      initialRoute: '/',
       routes: {
-        '/onboarding': (context) => const CoursesScreen(),
+        '/': (context) => const SplashScreen(),
+        '/onboarding': (context) => const OnboardingScreen(),
+        '/signup': (context) => const SignupScreen(),
         '/login': (context) => const LoginScreen(),
+        '/role-selection': (context) => const RoleSelectionScreen(),
         '/courses': (context) => const CoursesScreen(),
       },
     );

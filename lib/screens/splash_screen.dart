@@ -15,19 +15,19 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToNextScreen() async {
-    // Wait 3 seconds
-    await Future.delayed(const Duration(seconds: 3));
+    // Wait 2 seconds
+    await Future.delayed(const Duration(seconds: 2));
 
     if (mounted) {
-      // Navigate to Onboarding instead of /courses
-      Navigator.of(context).pushReplacementNamed('/onboarding');
+      // Go directly to login (skip onboarding for now)
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
+      backgroundColor: const Color(0xFF1E3A8A),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
