@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "426260816671",
+    "project_id": "peak-mind-e6c19",
+    "storage_bucket": "peak-mind-e6c19.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:426260816671:android:32f6abd3204563fe4d862a",
+        "android_client_info": {
+          "package_name": "com.peakmind.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiGTULYjyiFzYUrTtcSVppudgrnvsB2so"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
