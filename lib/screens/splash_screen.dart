@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (mounted) {
       // Go directly to login (skip onboarding for now)
-      Navigator.pushReplacementNamed(context, '/login');
+      Navigator.pushReplacementNamed(context, '/onboarding');
     }
   }
 

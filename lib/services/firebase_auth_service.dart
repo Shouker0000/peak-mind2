@@ -1,121 +1,68 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/user_model.dart';
 
 class FirebaseAuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  User? get currentUser => _auth.currentUser;
-
-  Future<UserModel?> signUp({
-    required String email,
-    required String password,
-    required String name,
-    required String role,
-  }) async {
+  // Sign up with email and password
+  Future<User?> signup(String email, String password) async {
     try {
-      print('📝 Step 1: Creating Firebase Auth user for $email');
-
       UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
+          await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      String uid = userCredential.user!.uid;
-      print('✅ Step 2: Auth user created: $uid');
-
-      print('📝 Step 3: Saving user to Firestore');
-
-      await _firestore.collection('users').doc(uid).set({
-        'id': uid,
-        'name': name,
-        'email': email,
-        'role': role,
-      });
-
-      print('✅ Step 4: User saved to Firestore');
-
-      return UserModel(
-        id: uid,
-        name: name,
-        email: email,
-        role: role,
-      );
+      return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      print('❌ Firebase Auth Error: ${e.code} - ${e.message}');
-      throw Exception('Sign up failed: ${e.message}');
-    } on FirebaseException catch (e) {
-      print('❌ Firestore Error: ${e.code} - ${e.message}');
-      throw Exception('Failed to save user data: ${e.message}');
+      if (e.code == 'weak-password') {
+        throw 'The password provided is too weak.';
+      } else if (e.code == 'email-already-in-use') {
+        throw 'The account already exists for that email.';
+      } else {
+        throw e.message ?? 'An error occurred';
+      }
     } catch (e) {
-      print('❌ Unexpected error: $e');
-      throw Exception('Sign up failed: $e');
+      throw e.toString();
     }
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  // Login with email and password
+  Future<User?> login(String email, String password) async {
     try {
-      print('📝 Login attempt: $email');
-
-      await _auth.signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      print('✅ Login successful');
+      return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      print('❌ Login error: ${e.code} - ${e.message}');
       if (e.code == 'user-not-found') {
-        throw Exception('Email not found. Please sign up first.');
+        throw 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
-        throw Exception('Incorrect password. Please try again.');
+        throw 'Wrong password provided for that user.';
+      } else {
+        throw e.message ?? 'An error occurred';
       }
-      throw Exception(e.message ?? 'Login failed');
     } catch (e) {
-      print('❌ Login exception: $e');
-      throw Exception('Login error: $e');
+      throw e.toString();
     }
   }
 
-  Future<UserModel?> getCurrentUserData() async {
-    try {
-      User? user = _auth.currentUser;
-      if (user == null) return null;
-
-      DocumentSnapshot doc =
-          await _firestore.collection('users').doc(user.uid).get();
-
-      if (doc.exists) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return UserModel(
-          id: user.uid,
-          name: data['name'] ?? 'User',
-          email: user.email ?? '',
-          role: data['role'] ?? 'student',
-        );
-      }
-
-      return UserModel(
-        id: user.uid,
-        name: 'User',
-        email: user.email ?? '',
-        role: 'student',
-      );
-    } catch (e) {
-      return null;
-    }
-  }
-
-  User? getCurrentUser() => _auth.currentUser;
-
+  // Logout
   Future<void> logout() async {
-    await _auth.signOut();
+    try {
+      await _firebaseAuth.signOut();
+    } catch (e) {
+      throw e.toString();
+    }
   }
 
-  bool isUserLoggedIn() => _auth.currentUser != null;
+  // Get current user
+  User? getCurrentUser() {
+    return _firebaseAuth.currentUser;
+  }
+
+  // Check if user is logged in
+  bool isUserLoggedIn() {
+    return _firebaseAuth.currentUser != null;
+  }
 }
