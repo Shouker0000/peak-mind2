@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/subject_model.dart';
 import '../models/user_model.dart';
 import '../services/subjects_service.dart';
+import 'teacher_list_screen.dart';
 
 class CoursesScreen extends StatefulWidget {
   const CoursesScreen({Key? key}) : super(key: key);
@@ -118,7 +119,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 0.85,
+                    childAspectRatio: 0.75,
                   ),
                   itemCount: _subjects.length,
                   itemBuilder: (context, index) {
@@ -131,11 +132,13 @@ class _CoursesScreenState extends State<CoursesScreen> {
   Widget _buildSubjectCard(SubjectModel subject) {
     return GestureDetector(
       onTap: () {
-        // Navigate to subject detail page
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${subject.title} selected'),
-            backgroundColor: const Color(0xFF25A0DC),
+        // Navigate to teachers list
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TeachersListScreen(
+              subject: subject,
+            ),
           ),
         );
       },
@@ -184,71 +187,72 @@ class _CoursesScreenState extends State<CoursesScreen> {
               ),
             ),
 
-            // Content
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          subject.title,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF142132),
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+            // Content - FIX: Remove Expanded and use SingleChildScrollView
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min, // ← ADD THIS
+                children: [
+                  // Title and Description
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        subject.title,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF142132),
                         ),
-                        const SizedBox(height: 4),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subject.description,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Teachers info
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF25A0DC).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.person,
+                          size: 12,
+                          color: Color(0xFF25A0DC),
+                        ),
+                        const SizedBox(width: 4),
                         Text(
-                          subject.description,
-                          style: TextStyle(
+                          '${subject.numberOfTeachers} Teachers',
+                          style: const TextStyle(
                             fontSize: 11,
-                            color: Colors.grey[600],
+                            color: Color(0xFF25A0DC),
+                            fontWeight: FontWeight.w600,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
-
-                    // Teachers info
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF25A0DC).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.person,
-                            size: 12,
-                            color: Color(0xFF25A0DC),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${subject.numberOfTeachers} Teachers',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Color(0xFF25A0DC),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -10,17 +10,15 @@ import 'screens/notifications_screen.dart';
 import 'screens/security_screen.dart';
 import 'screens/help_screen.dart';
 import 'screens/about_screen.dart';
-import 'services/subjects_service.dart';
+import 'utils/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  // Seed sample subjects (run this once, then comment it out)
-  // Uncomment this line only once to populate Firebase with sample data
-  //await SubjectsService().addSampleSubjects();
 
   runApp(const MyApp());
 }
@@ -32,40 +30,124 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Peak Mind',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
-        primaryColor: const Color(0xFF142132),
+        primaryColor: const Color(0xFF25A0DC),
+        primarySwatch: Colors.blue,
         scaffoldBackgroundColor: const Color(0xFFF5F5F5),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF142132),
           foregroundColor: Colors.white,
           elevation: 0,
-          centerTitle: true,
-        ),
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFF142132),
-          secondary: Color(0xFF25A0DC),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF25A0DC),
             foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 12,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF142132),
-          selectedItemColor: Color(0xFF25A0DC),
-          unselectedItemColor: Colors.grey,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(
+              color: Color(0xFFE0E0E0),
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(
+              color: Color(0xFFE0E0E0),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(
+              color: Color(0xFF25A0DC),
+              width: 2,
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(
+              color: Colors.red,
+            ),
+          ),
+          hintStyle: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 14,
+          ),
+        ),
+        textTheme: const TextTheme(
+          displayLarge: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF142132),
+          ),
+          displayMedium: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF142132),
+          ),
+          displaySmall: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF142132),
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF142132),
+          ),
+          headlineSmall: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF142132),
+          ),
+          titleLarge: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF142132),
+          ),
+          titleMedium: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF142132),
+          ),
+          bodyLarge: TextStyle(
+            fontSize: 16,
+            color: Color(0xFF142132),
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 14,
+            color: Color(0xFF142132),
+          ),
+          bodySmall: TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+          ),
         ),
       ),
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      home: const SplashScreen(),
       routes: {
-        '/': (context) => const SplashScreen(),
+        '/splash': (context) => const SplashScreen(),
         '/onboarding': (context) => const OnboardingScreen(),
-        '/signup': (context) => const SignupScreen(),
         '/login': (context) => const LoginScreen(),
+        '/signup': (context) => const SignupScreen(),
         '/home': (context) => const HomeScreen(),
         '/notifications': (context) => const NotificationsScreen(),
         '/security': (context) => const SecurityScreen(),

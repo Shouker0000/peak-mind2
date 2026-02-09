@@ -10,15 +10,19 @@ class SubjectsService {
     String grade,
   ) async {
     try {
+      // Fetch subjects that match the stage
       QuerySnapshot snapshot = await _firestore
           .collection('subjects')
-          .where('applicableStages', arrayContains: stage)
-          .where('applicableGrades', arrayContains: grade)
+          .where('applicableStages',
+              arrayContains: stage) // ← Only ONE array-contains
           .get();
 
+      // Filter by grade in Dart (client-side)
       return snapshot.docs
           .map(
               (doc) => SubjectModel.fromMap(doc.data() as Map<String, dynamic>))
+          .where((subject) =>
+              subject.applicableGrades.contains(grade)) // ← Filter here
           .toList();
     } catch (e) {
       print('Error fetching subjects: $e');
@@ -52,7 +56,7 @@ class SubjectsService {
           imageUrl:
               'https://images.unsplash.com/photo-1518611505867-48a0ff305bad?w=500&h=300&fit=crop',
           numberOfTeachers: 12,
-          applicableStages: ['prepatory', 'secondary', 'college'],
+          applicableStages: ['preparatory', 'secondary', 'college'],
           applicableGrades: ['One', 'Two', 'Three', 'Four', 'Five'],
           courseCount: 25,
         ),
@@ -63,7 +67,7 @@ class SubjectsService {
           imageUrl:
               'https://images.unsplash.com/photo-1546410531-bb4caa6b6e85?w=500&h=300&fit=crop',
           numberOfTeachers: 8,
-          applicableStages: ['prepatory', 'secondary', 'college'],
+          applicableStages: ['preparatory', 'secondary', 'college'],
           applicableGrades: ['One', 'Two', 'Three', 'Four', 'Five'],
           courseCount: 18,
         ),
@@ -85,7 +89,7 @@ class SubjectsService {
           imageUrl:
               'https://images.unsplash.com/photo-1530123482582-a618bc2615dc?w=500&h=300&fit=crop',
           numberOfTeachers: 10,
-          applicableStages: ['prepatory', 'secondary'],
+          applicableStages: ['preparatory', 'secondary'],
           applicableGrades: ['One', 'Two', 'Three'],
           courseCount: 20,
         ),
@@ -107,7 +111,7 @@ class SubjectsService {
           imageUrl:
               'https://images.unsplash.com/photo-1544716278-ca5e3af4abd8?w=500&h=300&fit=crop',
           numberOfTeachers: 6,
-          applicableStages: ['prepatory', 'secondary'],
+          applicableStages: ['preparatory', 'secondary'],
           applicableGrades: ['One', 'Two', 'Three'],
           courseCount: 15,
         ),
