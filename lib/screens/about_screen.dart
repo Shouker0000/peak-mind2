@@ -17,11 +17,7 @@ class AboutScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            const Icon(
-              Icons.psychology,
-              size: 80,
-              color: Color(0xFF25A0DC),
-            ),
+            const Image(image: AssetImage('assets/logos/logo_empty.png')),
             const SizedBox(height: 20),
             const Text(
               'Peak Mind',

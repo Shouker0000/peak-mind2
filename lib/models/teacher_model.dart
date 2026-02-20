@@ -1,12 +1,12 @@
 class TeacherModel {
-  final String id; // Type: String
-  final String name; // Type: String
-  final String email; // Type: String
-  final String profileImage; // Type: String
-  final String bio; // Type: String
-  final String specialization; // Type: String
-  final List<String> subjectIds; // Type: List<String>
-  final String phoneNumber; // Type: String
+  final String id;
+  final String name;
+  final String email;
+  final String profileImage;
+  final String bio;
+  final String specialization;
+  final List<String> subjectIds;
+  final String phoneNumber;
 
   TeacherModel({
     required this.id,
@@ -34,14 +34,14 @@ class TeacherModel {
 
   factory TeacherModel.fromMap(Map<String, dynamic> map) {
     return TeacherModel(
-      id: map['id'] ?? '',
-      name: map['name'] ?? '',
-      email: map['email'] ?? '',
-      profileImage: map['profileImage'] ?? '',
-      bio: map['bio'] ?? '',
-      specialization: map['specialization'] ?? '',
+      id: map['id']?.toString() ?? '',
+      name: map['name']?.toString() ?? '',
+      email: map['email']?.toString() ?? '',
+      profileImage: map['profileImage']?.toString() ?? '',
+      bio: map['bio']?.toString() ?? '',
+      specialization: map['specialization']?.toString() ?? '',
       subjectIds: List<String>.from(map['subjectIds'] ?? []),
-      phoneNumber: map['phoneNumber'] ?? '',
+      phoneNumber: map['phoneNumber']?.toString() ?? '',
     );
   }
 }

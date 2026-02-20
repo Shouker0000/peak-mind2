@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/user_model.dart';
 import 'courses_screen.dart';
 import 'my_courses_screen.dart';
 import 'profile_screen.dart';
@@ -14,12 +16,55 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  UserModel? _userModel;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        final doc = await _firestore.collection('users').doc(user.uid).get();
+        if (doc.exists) {
+          setState(() {
+            _userModel = UserModel.fromMap(doc.data()!);
+            _isLoading = false;
+          });
+        } else {
+          setState(() => _isLoading = false);
+        }
+      } else {
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> screens = [
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation(Color(0xFF25A0DC)),
+          ),
+        ),
+      );
+    }
+
+    final screens = [
       _buildHomeContent(),
-      const CoursesScreen(),
+      _userModel != null
+          ? CoursesScreen(userModel: _userModel!)
+          : const Center(child: Text('Please log in')),
       const MyCoursesScreen(),
       const ProfileScreen(),
     ];
@@ -31,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         backgroundColor: const Color(0xFF142132),
         selectedItemColor: const Color(0xFF25A0DC),
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: const Color.fromARGB(255, 255, 255, 255),
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
@@ -63,7 +108,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Header with greeting
           Container(
             color: const Color(0xFF142132),
             padding: const EdgeInsets.all(20),
@@ -95,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   'User';
                             }
                             return Text(
-                              'Good Morning, $userName',
+                              'Welcome Back $userName',
                               style: const TextStyle(
                                 color: Color(0xFF25A0DC),
                                 fontSize: 16,
@@ -105,30 +149,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundColor: const Color(0xFF25A0DC),
-                      child: const Icon(
-                        Icons.person,
-                        color: Color(0xFF142132),
-                        size: 30,
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
-                // Search bar
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: TextField(
+                  child: const TextField(
                     decoration: InputDecoration(
                       hintText: 'Search courses...',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: Icon(Icons.search),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(12),
+                      contentPadding: EdgeInsets.all(12),
                     ),
                   ),
                 ),
@@ -136,40 +170,36 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 20),
-
-          // Featured banner carousel
           SizedBox(
             height: 200,
             child: PageView(
               children: [
                 _buildBannerCard(
-                  'Youssef Ali',
+                  'Ahmed mohamed',
                   'Introduction to Education with 0-4 IQ Series of Experience',
-                  'https://via.placeholder.com/400x200?text=Teacher+1',
+                  'assets/images/teacher1.jpg',
                 ),
                 _buildBannerCard(
-                  'Emily Johnson',
+                  'Sara Khaled',
                   'Music and Art for Kids aged 6-12 years old',
-                  'https://via.placeholder.com/400x200?text=Teacher+2',
+                  'assets/images/teacher2.jpg',
                 ),
                 _buildBannerCard(
-                  'Benjamin Rodriguez',
+                  'Mohamed Ali',
                   'Programming for children aged 10-15',
-                  'https://via.placeholder.com/400x200?text=Teacher+3',
+                  'assets/images/teacher3.jpg',
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
-
-          // Top Courses section
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Top Teachers',
+                  'Why Join Us?',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 15),
@@ -177,20 +207,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Expanded(
                       child: _buildTeacherCard(
-                        'Emily Johnson',
-                        'Music and Art for Kids\naged 6-12 years old',
-                        '600 EGP/M',
-                        'https://via.placeholder.com/150x150?text=Emily',
-                      ),
+                          'Learn Live ',
+                          'Interactive classes with expert instructors',
+                          'assets/images/onboarding/student1.png'),
                     ),
                     const SizedBox(width: 15),
                     Expanded(
                       child: _buildTeacherCard(
-                        'Benjamin Rodriguez',
-                        'Programming for\nchildren aged 10-15',
-                        '600 EGP/M',
-                        'https://via.placeholder.com/150x150?text=Benjamin',
-                      ),
+                          'Engage & Ask Questions',
+                          'Real-time interaction and doubt solving',
+                          'assets/images/onboarding/student2.png'),
                     ),
                   ],
                 ),
@@ -198,8 +224,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 20),
-
-          // Call to action card
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -236,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: Theme.of(context).textTheme.headlineSmall,
                             ),
                             const Text(
-                              'Badaya Academy',
+                              'Peak Mind',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -252,7 +276,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber,
+                          backgroundColor:
+                              const Color.fromARGB(255, 14, 40, 128),
                         ),
                         onPressed: () {},
                         child: const Text('Become An Instructor'),
@@ -280,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         image: DecorationImage(
-          image: NetworkImage(imageUrl),
+          image: AssetImage(imageUrl),
           fit: BoxFit.cover,
         ),
       ),
@@ -328,7 +353,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildTeacherCard(
     String name,
     String description,
-    String price,
     String imageUrl,
   ) {
     return Card(
@@ -340,7 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(12)),
               image: DecorationImage(
-                image: NetworkImage(imageUrl),
+                image: AssetImage(imageUrl),
                 fit: BoxFit.cover,
               ),
             ),
@@ -350,14 +374,6 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '600 EGP/M',
-                  style: TextStyle(
-                    color: Color(0xFF25A0DC),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
                 const SizedBox(height: 5),
                 Text(
                   name,
@@ -374,31 +390,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 30,
-                        child: OutlinedButton(
-                          onPressed: () {},
-                          child: const Text('Details',
-                              style: TextStyle(fontSize: 11)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Expanded(
-                      child: SizedBox(
-                        height: 30,
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          child: const Text('Subscribe',
-                              style: TextStyle(fontSize: 11)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),

@@ -16,10 +16,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _navigateToNextScreen() async {
     // Wait 2 seconds
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 3));
 
     if (mounted) {
-      // Go directly to login (skip onboarding for now)
       Navigator.pushReplacementNamed(context, '/onboarding');
     }
   }
@@ -27,41 +26,16 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1E3A8A),
+      backgroundColor: const Color.fromARGB(255, 20, 35, 52),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.blue.shade700,
-              ),
-              padding: const EdgeInsets.all(30),
-              child: const Icon(
-                Icons.school,
-                size: 60,
-                color: Colors.white,
-              ),
+            Image.asset(
+              'assets/logos/white_logo.png',
+              width: 300,
             ),
-            const SizedBox(height: 20),
-            const Text(
-              'Peak Mind',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Learn Smarter. Go Higher.',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white70,
-              ),
-            ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 50),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             ),

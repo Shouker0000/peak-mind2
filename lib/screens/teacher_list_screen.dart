@@ -32,12 +32,12 @@ class _TeachersListScreenState extends State<TeachersListScreen> {
     try {
       final teachers =
           await _teachersService.getTeachersBySubject(widget.subject.id);
+
       setState(() {
         _teachers = teachers;
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading teachers: $e');
       setState(() {
         _isLoading = false;
       });
@@ -59,7 +59,7 @@ class _TeachersListScreenState extends State<TeachersListScreen> {
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF25A0DC)),
+                valueColor: AlwaysStoppedAnimation(Color(0xFF25A0DC)),
               ),
             )
           : _teachers.isEmpty

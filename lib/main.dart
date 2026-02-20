@@ -10,12 +10,10 @@ import 'screens/notifications_screen.dart';
 import 'screens/security_screen.dart';
 import 'screens/help_screen.dart';
 import 'screens/about_screen.dart';
-import 'utils/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

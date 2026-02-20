@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('❌ Please fill all fields'),
+          content: Text('Please fill all fields'),
           backgroundColor: Colors.red,
         ),
       );
@@ -39,20 +39,16 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      print('📝 Login attempt: ${_emailController.text}');
-
       final user = await _authService.login(
         _emailController.text.trim(),
         _passwordController.text,
       );
 
       if (user != null) {
-        print('✅ Login successful: ${user.email}');
-
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('✅ Login successful!'),
+              content: Text('Welcome To PeakMind!'),
               backgroundColor: Color(0xFF25A0DC),
             ),
           );
@@ -60,11 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } catch (e) {
-      print('❌ Login exception: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Error: $e'),
+            content: Text(' Error: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -81,42 +76,25 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: const Color(0xFF142132),
-        elevation: 0,
-      ),
+      backgroundColor: const Color.fromARGB(255, 20, 35, 52),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Welcome Back',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF142132),
-              ),
+            Image.asset(
+              "assets/logos/login_logo.png",
             ),
-            const SizedBox(height: 10),
-            const Text(
-              'Login to continue learning',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 40),
+
+            const SizedBox(height: 20),
 
             // Email Field
-            Text(
+            const Text(
               'Email Address',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[700],
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
@@ -146,12 +124,12 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 20),
 
             // Password Field
-            Text(
+            const Text(
               'Password',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[700],
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
@@ -199,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: const Text(
                   'Forgot Password?',
                   style: TextStyle(
-                    color: Color(0xFF25A0DC),
+                    color: Color.fromARGB(255, 255, 255, 255),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -239,11 +217,15 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Sign Up Link
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('Don\'t have an account? '),
+                const Text(
+                  'Don\'t have an account? ',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).pushReplacementNamed('/signup');
@@ -273,7 +255,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Social Login Buttons (Optional)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -311,11 +292,11 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           child: Column(
             children: [
-              Icon(icon, color: const Color(0xFF25A0DC)),
+              Icon(icon, color: const Color.fromARGB(255, 255, 255, 255)),
               const SizedBox(height: 4),
               Text(
                 label,
-                style: const TextStyle(fontSize: 12),
+                style: const TextStyle(fontSize: 12, color: Colors.white),
               ),
             ],
           ),

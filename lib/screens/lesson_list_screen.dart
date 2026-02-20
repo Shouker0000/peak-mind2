@@ -40,13 +40,9 @@ class _LessonListScreenState extends State<LessonListScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading lessons: $e');
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading lessons: $e')),
-      );
     }
   }
 
@@ -62,7 +58,7 @@ class _LessonListScreenState extends State<LessonListScreen> {
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF25A0DC)),
+                valueColor: AlwaysStoppedAnimation(Color(0xFF25A0DC)),
               ),
             )
           : _lessons.isEmpty
@@ -76,11 +72,11 @@ class _LessonListScreenState extends State<LessonListScreen> {
                         color: Colors.grey[400],
                       ),
                       const SizedBox(height: 20),
-                      Text(
+                      const Text(
                         'No lessons available',
                         style: TextStyle(
                           fontSize: 18,
-                          color: Colors.grey[600],
+                          color: Colors.grey,
                         ),
                       ),
                     ],

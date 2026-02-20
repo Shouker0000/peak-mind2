@@ -41,7 +41,7 @@ class _SignupScreenState extends State<SignupScreen> {
   void _onStageChanged(String? newStage) {
     setState(() {
       _selectedStage = newStage;
-      _selectedGrade = null; // Reset grade when stage changes
+      _selectedGrade = null;
       _availableGrades = StageGradeHelper.getGradesForStage(newStage ?? '');
     });
   }
@@ -56,7 +56,7 @@ class _SignupScreenState extends State<SignupScreen> {
         _selectedGrade == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('❌ Please fill all fields'),
+          content: Text(' Please fill all fields'),
           backgroundColor: Colors.red,
         ),
       );
@@ -68,7 +68,6 @@ class _SignupScreenState extends State<SignupScreen> {
     });
 
     try {
-      // Create user with email and password
       final user = await _authService.signup(
         _emailController.text.trim(),
         _passwordController.text,
@@ -100,7 +99,7 @@ class _SignupScreenState extends State<SignupScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('✅ Account created successfully!'),
+              content: Text(' Account created successfully!'),
               backgroundColor: Color(0xFF25A0DC),
             ),
           );
@@ -112,7 +111,7 @@ class _SignupScreenState extends State<SignupScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Error: $e'),
+            content: Text(' Error: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -140,20 +139,32 @@ class _SignupScreenState extends State<SignupScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Sign Up',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF142132),
-              ),
+            const SizedBox(height: 20),
+
+            const Image(
+              image: AssetImage('assets/logos/signup.png'),
             ),
-            const SizedBox(height: 10),
-            const Text(
-              'Create your account and start learning',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
+            const SizedBox(height: 40),
+            const Center(
+              child: Column(
+                children: [
+                  Text(
+                    'Sign Up',
+                    style: TextStyle(
+                      fontSize: 23,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF142132),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  const Text(
+                    'Create your account and start learning',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 30),
