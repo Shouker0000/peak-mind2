@@ -6,10 +6,14 @@ import '../models/lesson_model.dart';
 
 class LessonPlayerScreen extends StatefulWidget {
   final LessonModel lesson;
+  final bool isCompleted;
+  final ValueChanged<bool>? onCompletionToggled;
 
   const LessonPlayerScreen({
     Key? key,
     required this.lesson,
+    this.isCompleted = false,
+    this.onCompletionToggled,
   }) : super(key: key);
 
   @override
@@ -18,10 +22,12 @@ class LessonPlayerScreen extends StatefulWidget {
 
 class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   late YoutubePlayerController _youtubeController;
+  late bool _isCompleted;
 
   @override
   void initState() {
     super.initState();
+    _isCompleted = widget.isCompleted;
 
     final videoId = YoutubePlayer.convertUrlToId(widget.lesson.videoUrl) ??
         widget.lesson.videoUrl;
@@ -190,6 +196,32 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
                             side: const BorderSide(
                               color: Color(0xFF25A0DC),
                             ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: widget.onCompletionToggled != null
+                              ? () {
+                                  setState(
+                                      () => _isCompleted = !_isCompleted);
+                                  widget.onCompletionToggled!(_isCompleted);
+                                }
+                              : null,
+                          icon: Icon(_isCompleted
+                              ? Icons.check_circle
+                              : Icons.check_circle_outline),
+                          label: Text(_isCompleted
+                              ? 'Mark as Incomplete'
+                              : 'Mark as Complete'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isCompleted
+                                ? Colors.green
+                                : const Color(0xFF142132),
+                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                         ),
