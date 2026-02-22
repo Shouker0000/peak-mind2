@@ -33,4 +33,23 @@ class AppConstants {
   static const int minPasswordLength = 6;
   static const String emailRegex =
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+
+  /// Validates a YouTube URL or video ID.
+  /// Returns the extracted video ID if valid, or null if invalid.
+  static String? extractYouTubeVideoId(String input) {
+    if (input.isEmpty) return null;
+    // If it looks like a raw video ID (11 chars, alphanumeric + - _)
+    final rawIdRegex = RegExp(r'^[a-zA-Z0-9_\-]{11}$');
+    if (rawIdRegex.hasMatch(input)) return input;
+    // Try to parse as URL
+    final youtubeRegex = RegExp(
+      r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})',
+    );
+    final match = youtubeRegex.firstMatch(input);
+    return match?.group(1);
+  }
+
+  static bool isValidYouTubeUrl(String input) {
+    return extractYouTubeVideoId(input) != null;
+  }
 }

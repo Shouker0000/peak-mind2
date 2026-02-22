@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/lesson_model.dart';
+import '../services/enrollment_service.dart';
 
 class LessonPlayerScreen extends StatefulWidget {
   final LessonModel lesson;
@@ -23,6 +26,7 @@ class LessonPlayerScreen extends StatefulWidget {
 class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   late YoutubePlayerController _youtubeController;
   late bool _isCompleted;
+  final EnrollmentService _enrollmentService = EnrollmentService();
 
   @override
   void initState() {
@@ -30,7 +34,7 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     _isCompleted = widget.isCompleted;
 
     final videoId = YoutubePlayer.convertUrlToId(widget.lesson.videoUrl) ??
-        widget.lesson.videoUrl;
+        (widget.lesson.videoUrl.length == 11 ? widget.lesson.videoUrl : '');
 
     _youtubeController = YoutubePlayerController(
       initialVideoId: videoId,
@@ -38,14 +42,29 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
         autoPlay: true,
         mute: false,
         disableDragSeek: false,
-        enableCaption: true,
-        controlsVisibleAtStart: true,
+        enableCaption: false,
+        hideControls: true,
+        controlsVisibleAtStart: false,
       ),
     );
   }
 
   @override
   void dispose() {
+    // Save last video position before disposing (fire-and-forget)
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final positionSeconds =
+          _youtubeController.value.position.inSeconds;
+      if (positionSeconds > 0) {
+        unawaited(_enrollmentService.updateLastVideoPosition(
+          user.uid,
+          widget.lesson.courseId,
+          widget.lesson.id,
+          positionSeconds,
+        ));
+      }
+    }
     _youtubeController.dispose();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,

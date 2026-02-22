@@ -989,11 +989,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           ElevatedButton(
             onPressed: () {
+              final adminUid = _auth.currentUser?.uid ?? '';
               _firestore
                   .collection(AppConstants.coursesCollection)
                   .doc(courseId)
                   .delete()
                   .then((_) {
+                // Log activity
+                _firestore
+                    .collection(AppConstants.activityLogsCollection)
+                    .add({
+                  'userId': adminUid,
+                  'action': 'course_deleted',
+                  'details': 'Course deleted by admin',
+                  'metadata': {'courseId': courseId},
+                  'timestamp': FieldValue.serverTimestamp(),
+                });
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

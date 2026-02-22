@@ -224,9 +224,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 8),
 
                 // Role
-                const Text(
-                  'Student',
-                  style: TextStyle(
+                Text(
+                  _userModel?.role.toUpperCase() ?? 'STUDENT',
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 16,
                   ),

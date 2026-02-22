@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // Route to Admin Dashboard
       Navigator.of(context).pushReplacementNamed('/admin_dashboard');
     } else {
-      // All other users go to Home Screen (students)
+      // All other users go to Home Screen
       Navigator.of(context).pushReplacementNamed('/home');
     }
   }

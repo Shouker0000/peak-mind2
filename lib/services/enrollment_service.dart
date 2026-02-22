@@ -53,6 +53,46 @@ class EnrollmentService {
     }
   }
 
+  Future<void> updateLastVideoPosition(
+      String userId, String courseId, String lessonId, int positionSeconds) async {
+    final docId = _enrollmentId(userId, courseId);
+    try {
+      await _firestore.collection('enrollments').doc(docId).update({
+        'lastVideoLessonId': lessonId,
+        'lastVideoPositionSeconds': positionSeconds,
+        'lastAccessed': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseException catch (e) {
+      // Ignore not-found errors (user not enrolled yet)
+      if (e.code != 'not-found') {
+        print('Error updating video position: ${e.code} - ${e.message}');
+      }
+    } catch (e) {
+      print('Error updating video position: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getLastVideoPosition(
+      String userId, String courseId) async {
+    try {
+      final doc = await _firestore
+          .collection('enrollments')
+          .doc(_enrollmentId(userId, courseId))
+          .get();
+      if (!doc.exists) return {};
+      return {
+        'lessonId': doc.data()?['lastVideoLessonId'],
+        'positionSeconds': doc.data()?['lastVideoPositionSeconds'] ?? 0,
+      };
+    } on FirebaseException catch (e) {
+      print('Error getting video position: ${e.code} - ${e.message}');
+      return {};
+    } catch (e) {
+      print('Error getting video position: $e');
+      return {};
+    }
+  }
+
   Future<void> markLessonComplete(String userId, String courseId,
       String lessonId, bool isCompleted, int totalLessons) async {
     final docId = _enrollmentId(userId, courseId);
