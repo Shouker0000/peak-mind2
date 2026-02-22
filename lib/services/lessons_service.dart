@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/lesson_model.dart';
+import '../utils/constants.dart';
 
 class LessonsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -9,16 +10,16 @@ class LessonsService {
       QuerySnapshot snapshot = await _firestore
           .collection('lessons')
           .where('courseId', isEqualTo: courseId)
+          .orderBy('lessonNumber', descending: false)
           .get();
 
       final lessons = snapshot.docs
           .map((doc) => LessonModel.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
-      lessons.sort((a, b) => a.lessonNumber.compareTo(b.lessonNumber));
-
       return lessons;
     } catch (e) {
+      print('Error getting lessons: $e');
       return [];
     }
   }
@@ -32,6 +33,7 @@ class LessonsService {
         return LessonModel.fromMap(doc.data() as Map<String, dynamic>);
       }
     } catch (e) {
+      print('Error getting lesson: $e');
       return null;
     }
     return null;
@@ -43,7 +45,42 @@ class LessonsService {
           await _firestore.collection('lessons').add(lesson.toMap());
       return docRef.id;
     } catch (e) {
+      print('Error creating lesson: $e');
       rethrow;
+    }
+  }
+
+  Future<void> updateLesson(String lessonId, LessonModel lesson) async {
+    try {
+      await _firestore
+          .collection('lessons')
+          .doc(lessonId)
+          .update(lesson.toMap());
+    } catch (e) {
+      print('Error updating lesson: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteLesson(String lessonId) async {
+    try {
+      await _firestore.collection('lessons').doc(lessonId).delete();
+    } catch (e) {
+      print('Error deleting lesson: $e');
+      rethrow;
+    }
+  }
+
+  Future<int> getTotalLessons(String courseId) async {
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('lessons')
+          .where('courseId', isEqualTo: courseId)
+          .get();
+
+      return snapshot.docs.length;
+    } catch (e) {
+      return 0;
     }
   }
 }

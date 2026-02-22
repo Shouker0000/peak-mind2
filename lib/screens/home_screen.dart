@@ -62,9 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final screens = [
       _buildHomeContent(),
-      _userModel != null
-          ? CoursesScreen(userModel: _userModel!)
-          : const Center(child: Text('Please log in')),
+      const CoursesScreen(),
       const MyCoursesScreen(),
       const ProfileScreen(),
     ];
@@ -175,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: PageView(
               children: [
                 _buildBannerCard(
-                  'Ahmed mohamed',
+                  'Ahmed Mohamed',
                   'Introduction to Education with 0-4 IQ Series of Experience',
                   'assets/images/teacher1.jpg',
                 ),

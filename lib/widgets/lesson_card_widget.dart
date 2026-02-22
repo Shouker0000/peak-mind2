@@ -4,11 +4,15 @@ import '../models/lesson_model.dart';
 class LessonCardWidget extends StatelessWidget {
   final LessonModel lesson;
   final VoidCallback onTap;
+  final bool isCompleted;
+  final ValueChanged<bool>? onCompletionToggled;
 
   const LessonCardWidget({
     Key? key,
     required this.lesson,
     required this.onTap,
+    this.isCompleted = false,
+    this.onCompletionToggled,
   }) : super(key: key);
 
   @override
@@ -18,10 +22,14 @@ class LessonCardWidget extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isCompleted
+              ? const Color(0xFF25A0DC).withOpacity(0.05)
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.grey[300]!,
+            color: isCompleted
+                ? const Color(0xFF25A0DC).withOpacity(0.4)
+                : Colors.grey[300]!,
             width: 1,
           ),
         ),
@@ -34,18 +42,20 @@ class LessonCardWidget extends StatelessWidget {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF25A0DC),
+                  color: isCompleted ? Colors.green : const Color(0xFF25A0DC),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Center(
-                  child: Text(
-                    'L${lesson.lessonNumber}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: isCompleted
+                      ? const Icon(Icons.check, color: Colors.white, size: 24)
+                      : Text(
+                          'L${lesson.lessonNumber}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -60,10 +70,15 @@ class LessonCardWidget extends StatelessWidget {
                         Expanded(
                           child: Text(
                             lesson.title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF142132),
+                              color: isCompleted
+                                  ? Colors.grey[600]
+                                  : const Color(0xFF142132),
+                              decoration: isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -136,12 +151,22 @@ class LessonCardWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              // Arrow Icon
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: Colors.grey,
-              ),
+              // Checkbox
+              if (onCompletionToggled != null)
+                Checkbox(
+                  value: isCompleted,
+                  onChanged: (value) => onCompletionToggled!(value ?? false),
+                  activeColor: const Color(0xFF25A0DC),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                )
+              else
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: Colors.grey,
+                ),
             ],
           ),
         ),

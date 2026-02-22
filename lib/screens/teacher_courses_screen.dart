@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/subject_model.dart';
 import '../models/teacher_model.dart';
 import '../services/teachers_service.dart';
+import '../services/lessons_service.dart';
+import '../services/enrollment_service.dart';
 import 'lesson_list_screen.dart';
 
 class TeacherCoursesScreen extends StatefulWidget {
@@ -20,7 +23,10 @@ class TeacherCoursesScreen extends StatefulWidget {
 
 class _TeacherCoursesScreenState extends State<TeacherCoursesScreen> {
   final TeachersService _teachersService = TeachersService();
+  final LessonsService _lessonsService = LessonsService();
+  final EnrollmentService _enrollmentService = EnrollmentService();
   List<Map<String, dynamic>> _courses = [];
+  Set<String> _enrolledCourseIds = {};
   bool _isLoading = true;
 
   @override
@@ -33,12 +39,49 @@ class _TeacherCoursesScreenState extends State<TeacherCoursesScreen> {
     try {
       final courses =
           await _teachersService.getTeacherCourses(widget.teacher.id);
+
+      final user = FirebaseAuth.instance.currentUser;
+      final enrolled = <String>{};
+      if (user != null) {
+        for (final course in courses) {
+          final courseId = course['id'] as String? ?? '';
+          if (courseId.isNotEmpty &&
+              await _enrollmentService.isEnrolled(user.uid, courseId)) {
+            enrolled.add(courseId);
+          }
+        }
+      }
+
       setState(() {
         _courses = courses;
+        _enrolledCourseIds = enrolled;
         _isLoading = false;
       });
     } catch (e) {
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _enroll(String courseId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    try {
+      final lessons = await _lessonsService.getLessonsByCourse(courseId);
+      await _enrollmentService.enrollInCourse(
+          user.uid, courseId, lessons.length);
+      setState(() => _enrolledCourseIds.add(courseId));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Enrolled successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error enrolling: $e')),
+      );
     }
   }
 
@@ -344,44 +387,68 @@ class _TeacherCoursesScreenState extends State<TeacherCoursesScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LessonListScreen(
-                            courseId: course['id'],
-                            courseTitle: course['title'] ?? 'Course',
-                            teacher: widget.teacher,
-                          ),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF142132),
-                      elevation: 0,
-                      side: const BorderSide(color: Colors.grey),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'View',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
+                _buildEnrollButton(course),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEnrollButton(Map<String, dynamic> course) {
+    final courseId = course['id'] as String? ?? '';
+    final isEnrolled = _enrolledCourseIds.contains(courseId);
+
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          if (isEnrolled) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LessonListScreen(
+                  courseId: courseId,
+                  courseTitle: course['title'] ?? 'Course',
+                  teacher: widget.teacher,
+                ),
+              ),
+            );
+          } else {
+            _enroll(courseId).then((_) {
+              if (_enrolledCourseIds.contains(courseId) && mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LessonListScreen(
+                      courseId: courseId,
+                      courseTitle: course['title'] ?? 'Course',
+                      teacher: widget.teacher,
+                    ),
+                  ),
+                );
+              }
+            });
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor:
+              isEnrolled ? const Color(0xFF142132) : const Color(0xFF25A0DC),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: Text(
+          isEnrolled ? 'Continue Learning' : 'Enroll',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }

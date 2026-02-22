@@ -54,3 +54,43 @@ class LessonModel {
     );
   }
 }
+
+// Student progress model
+class StudentProgress {
+  final String studentId;
+  final String courseId;
+  final List<String> completedLessonIds;
+  final DateTime lastAccessed;
+
+  StudentProgress({
+    required this.studentId,
+    required this.courseId,
+    required this.completedLessonIds,
+    required this.lastAccessed,
+  });
+
+  // Calculate progress percentage
+  double getProgress(int totalLessons) {
+    if (totalLessons == 0) return 0;
+    return (completedLessonIds.length / totalLessons) * 100;
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'studentId': studentId,
+      'courseId': courseId,
+      'completedLessonIds': completedLessonIds,
+      'lastAccessed': lastAccessed.toIso8601String(),
+    };
+  }
+
+  factory StudentProgress.fromMap(Map<String, dynamic> map) {
+    return StudentProgress(
+      studentId: map['studentId'] ?? '',
+      courseId: map['courseId'] ?? '',
+      completedLessonIds: List<String>.from(map['completedLessonIds'] ?? []),
+      lastAccessed: DateTime.parse(
+          map['lastAccessed'] ?? DateTime.now().toIso8601String()),
+    );
+  }
+}

@@ -94,37 +94,6 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
     }
   }
 
-  Future<void> _enrollInSampleCourse() async {
-    try {
-      final user = _auth.currentUser;
-      if (user == null) return;
-
-      // Create enrollment for course_1
-      await _firestore.collection('enrollments').add({
-        'userId': user.uid,
-        'courseId': 'course_1',
-        'progress': 0.35,
-        'completedLessons': 1,
-        'totalLessons': 3,
-        'enrolledAt': DateTime.now().toIso8601String(),
-        'lastAccessed': DateTime.now().toIso8601String(),
-      });
-
-      _loadEnrolledCourses();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Enrolled in course!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,20 +134,6 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[500],
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      ElevatedButton.icon(
-                        onPressed: _enrollInSampleCourse,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Enroll in Sample Course'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF25A0DC),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
                         ),
                       ),
                     ],

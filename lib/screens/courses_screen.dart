@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import '../models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/subject_model.dart';
 import '../services/subjects_service.dart';
 import '../services/teachers_service.dart';
+import '../services/enrollment_service.dart';
 import '../models/teacher_model.dart';
 import 'teacher_list_screen.dart';
 
 class CoursesScreen extends StatefulWidget {
-  final UserModel userModel;
-
-  const CoursesScreen({Key? key, required this.userModel}) : super(key: key);
+  const CoursesScreen({Key? key}) : super(key: key);
 
   @override
   State<CoursesScreen> createState() => _CoursesScreenState();
@@ -18,22 +18,52 @@ class CoursesScreen extends StatefulWidget {
 class _CoursesScreenState extends State<CoursesScreen> {
   final SubjectsService _subjectsService = SubjectsService();
   final TeachersService _teachersService = TeachersService();
+  final EnrollmentService _enrollmentService = EnrollmentService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<SubjectModel> _subjects = [];
   Map<String, int> _teacherCounts = {};
   bool _isLoading = true;
+  String _userStage = 'secondary';
+  String _userGrade = '10';
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadUserData();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadUserData() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      // Get user document from Firestore
+      final userDoc =
+          await _firestore.collection('users').doc(currentUser.uid).get();
+
+      if (userDoc.exists) {
+        final userData = userDoc.data()!;
+        _userStage = userData['stage'] ?? 'secondary';
+        _userGrade = userData['grade'] ?? '10';
+      }
+
+      _loadCourses();
+    } catch (e) {
+      print('Error loading user data: $e');
+      _loadCourses();
+    }
+  }
+
+  Future<void> _loadCourses() async {
     try {
       final subjects = await _subjectsService.getSubjectsForUser(
-        widget.userModel.stage,
-        widget.userModel.grade,
+        _userStage,
+        _userGrade,
       );
 
       final teachers = await _teachersService.getAllTeachers();
@@ -50,6 +80,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      print('Error loading courses: $e');
       setState(() => _isLoading = false);
     }
   }
@@ -59,7 +90,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text('Courses'),
+        title: const Text('Courses', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF142132),
         elevation: 0,
       ),
@@ -77,8 +108,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio:
-                        0.8, // Slightly reduced to prevent overflow
+                    childAspectRatio: 0.8,
                   ),
                   itemCount: _subjects.length,
                   itemBuilder: (context, index) {
@@ -115,7 +145,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Section with Flexible to prevent overflow
             Expanded(
               flex: 3,
               child: ClipRRect(
@@ -125,54 +154,38 @@ class _CoursesScreenState extends State<CoursesScreen> {
                 child: Container(
                   width: double.infinity,
                   color: const Color(0xFF25A0DC).withOpacity(0.1),
-                  // Fetch image from Firebase using imageUrl field
-                  child: subject.imageUrl != null &&
-                          subject.imageUrl!.isNotEmpty
-                      ? Image.network(
-                          subject.imageUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Center(
+                  child:
+                      subject.imageUrl != null && subject.imageUrl!.isNotEmpty
+                          ? Image.network(
+                              subject.imageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Icon(
+                                    _getSubjectIcon(subject.title),
+                                    size: 50,
+                                    color: const Color(0xFF25A0DC),
+                                  ),
+                                );
+                              },
+                            )
+                          : Center(
                               child: Icon(
                                 _getSubjectIcon(subject.title),
                                 size: 50,
                                 color: const Color(0xFF25A0DC),
                               ),
-                            );
-                          },
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
-                                color: const Color(0xFF25A0DC),
-                              ),
-                            );
-                          },
-                        )
-                      : Center(
-                          child: Icon(
-                            _getSubjectIcon(subject.title),
-                            size: 50,
-                            color: const Color(0xFF25A0DC),
-                          ),
-                        ),
+                            ),
                 ),
               ),
             ),
-            // Text Section with Flexible
             Expanded(
               flex: 2,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment:
-                      MainAxisAlignment.center, // Center vertically
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       subject.title,
@@ -191,14 +204,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
                         fontSize: 11,
                         color: Color(0xFF25A0DC),
                         fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${subject.applicableGrades.length} Grades',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey[600],
                       ),
                     ),
                   ],
