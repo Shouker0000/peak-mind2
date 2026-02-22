@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/firebase_auth_service.dart';
 import '../models/user_model.dart';
 import '../utils/constants.dart';
+import 'instructor_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -103,8 +104,16 @@ class _LoginScreenState extends State<LoginScreen> {
     if (userModel.isAdmin()) {
       // Route to Admin Dashboard
       Navigator.of(context).pushReplacementNamed('/admin_dashboard');
+    } else if (userModel.isInstructor()) {
+      // Route instructors to Instructor Dashboard
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) =>
+              InstructorDashboardScreen(userModel: userModel),
+        ),
+      );
     } else {
-      // All other users go to Home Screen (students)
+      // Students go to Home Screen
       Navigator.of(context).pushReplacementNamed('/home');
     }
   }

@@ -155,13 +155,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const TextField(
-                    decoration: InputDecoration(
+                  child: TextField(
+                    decoration: const InputDecoration(
                       hintText: 'Search courses...',
                       prefixIcon: Icon(Icons.search),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.all(12),
                     ),
+                    onSubmitted: (value) {
+                      // Switch to Courses tab
+                      setState(() {
+                        _selectedIndex = 1;
+                      });
+                    },
+                    onTap: () {
+                      // Switch to Courses tab when user taps the search bar
+                      setState(() {
+                        _selectedIndex = 1;
+                      });
+                    },
                   ),
                 ),
               ],

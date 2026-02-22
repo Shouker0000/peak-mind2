@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 import '../utils/constants.dart';
+import 'admin_create_course_screen.dart';
+import 'admin_edit_course_screen.dart';
 
 class InstructorDashboardScreen extends StatefulWidget {
   final UserModel userModel;
@@ -237,9 +239,10 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
             Icons.add_circle_outline,
             Colors.blue,
             () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Create course feature coming soon!'),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminCreateCourseScreen(),
                 ),
               );
             },
@@ -252,7 +255,8 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
             () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Video upload feature coming soon!'),
+                  content: Text(
+                      'Go to My Courses tab, select a course, then add a lesson with a YouTube video link.'),
                 ),
               );
             },
@@ -383,9 +387,10 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
                   height: 50,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Create course feature coming soon!'),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdminCreateCourseScreen(),
                         ),
                       );
                     },
@@ -525,9 +530,11 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Edit feature coming soon!'),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AdminEditCourseScreen(courseId: courseId),
                       ),
                     );
                   },
@@ -541,7 +548,8 @@ class _InstructorDashboardScreenState extends State<InstructorDashboardScreen> {
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Add lesson feature coming soon!'),
+                        content: Text(
+                            'Add lesson: Go to Firestore and add a lesson with the courseId, or use the admin panel.'),
                       ),
                     );
                   },

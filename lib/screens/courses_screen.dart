@@ -21,17 +21,45 @@ class _CoursesScreenState extends State<CoursesScreen> {
   final EnrollmentService _enrollmentService = EnrollmentService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final TextEditingController _searchController = TextEditingController();
 
   List<SubjectModel> _subjects = [];
+  List<SubjectModel> _filteredSubjects = [];
   Map<String, int> _teacherCounts = {};
   bool _isLoading = true;
   String _userStage = 'secondary';
   String _userGrade = '10';
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text.toLowerCase();
+      _applySearch();
+    });
+  }
+
+  void _applySearch() {
+    if (_searchQuery.isEmpty) {
+      _filteredSubjects = List.from(_subjects);
+    } else {
+      _filteredSubjects = _subjects
+          .where((s) => s.title.toLowerCase().contains(_searchQuery))
+          .toList();
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -76,6 +104,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
 
       setState(() {
         _subjects = subjects;
+        _filteredSubjects = List.from(subjects);
         _teacherCounts = counts;
         _isLoading = false;
       });
@@ -94,29 +123,66 @@ class _CoursesScreenState extends State<CoursesScreen> {
         backgroundColor: const Color(0xFF142132),
         elevation: 0,
       ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation(Color(0xFF25A0DC)),
-              ),
-            )
-          : _subjects.isEmpty
-              ? const Center(child: Text('No courses available'))
-              : GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.8,
-                  ),
-                  itemCount: _subjects.length,
-                  itemBuilder: (context, index) {
-                    final subject = _subjects[index];
-                    final teacherCount = _teacherCounts[subject.id] ?? 0;
-                    return _buildSubjectCard(subject, teacherCount);
-                  },
+      body: Column(
+        children: [
+          // Search bar
+          Container(
+            color: const Color(0xFF142132),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Search subjects...',
+                hintStyle: const TextStyle(color: Colors.white54),
+                prefixIcon:
+                    const Icon(Icons.search, color: Colors.white54),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, color: Colors.white54),
+                        onPressed: () {
+                          _searchController.clear();
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
                 ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(Color(0xFF25A0DC)),
+                    ),
+                  )
+                : _filteredSubjects.isEmpty
+                    ? const Center(child: Text('No courses found'))
+                    : GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.8,
+                        ),
+                        itemCount: _filteredSubjects.length,
+                        itemBuilder: (context, index) {
+                          final subject = _filteredSubjects[index];
+                          final teacherCount =
+                              _teacherCounts[subject.id] ?? 0;
+                          return _buildSubjectCard(subject, teacherCount);
+                        },
+                      ),
+          ),
+        ],
+      ),
     );
   }
 

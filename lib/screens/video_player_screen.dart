@@ -30,6 +30,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       flags: const YoutubePlayerFlags(
         autoPlay: true,
         mute: false,
+        hideControls: true,
+        enableCaption: false,
       ),
     );
   }
